@@ -1,47 +1,27 @@
-YouTube Video/Playlist Downloader 🎥🎶
-Este script Python utiliza o yt-dlp para baixar vídeos ou playlists do YouTube nos formatos MP3 ou MP4. Ele é fácil de usar e permite especificar o formato de saída, bem como o caminho para salvar o arquivo.
+# **YouTube Video/Playlist Downloader** 🎥🎶
 
-✨ Funcionalidades
-📥 Baixar vídeos ou playlists: Baixe qualquer vídeo ou playlist do YouTube.
-🎧 Formato de saída: Escolha entre os formatos mp3 ou mp4.
-📝 Personalização do nome do arquivo: Defina o caminho de saída ou utilize o nome original do vídeo.
-⚙️ Requisitos
+<img src="https://upload.wikimedia.org/wikipedia/commons/e/ef/Youtube_logo.png" alt="YouTube Downloader" width="150"/>
+
+Este script Python utiliza o `yt-dlp` para baixar vídeos ou playlists do YouTube nos formatos MP3 ou MP4. Ele é fácil de usar e permite especificar o formato de saída.
+
+## **✨ Funcionalidades**
+
+- **📥 Baixar vídeos ou playlists:** Baixe qualquer vídeo ou playlist do YouTube.
+- **🎧 Formato de saída:** Escolha entre os formatos `mp3`(audio) ou `mp4`(video).
+
+## **⚙️ Requisitos**
+
 Certifique-se de que você tenha os seguintes requisitos instalados:
 
-Python 3.x
-yt-dlp
-FFmpeg
-🔧 Instalação do yt-dlp e FFmpeg
-bash
-Copiar código
+- **Python 3.x**
+- **yt-dlp**
+
+### **🔧 Instalação do yt-dlp**
+
+```bash
 pip install yt-dlp
-Para instalar o FFmpeg, siga as instruções no site oficial do FFmpeg.
+```
 
-🚀 Como usar
-Clone este repositório:
 
-bash
-Copiar código
-git clone https://github.com/seu_usuario/yt-downloader.git
-cd yt-downloader
-Execute o script:
-
-bash
-Copiar código
-python download_video_or_playlist.py
-Digite a URL do vídeo ou playlist do YouTube e o formato desejado (mp3 ou mp4) quando solicitado.
-
-💡 Exemplo de uso
-bash
-Copiar código
-Digite a URL do vídeo ou playlist do YouTube: https://www.youtube.com/watch?v=dQw4w9WgXcQ
-Digite o formato desejado (mp3 ou mp4): mp3
-⚙️ Personalização
-output_path: Você pode definir um caminho de saída personalizado ao chamar a função download_video_or_playlist.
-❗ Tratamento de Erros
-Se ocorrer algum erro durante o download, uma mensagem de erro será exibida no console.
-
-🤝 Contribuição
-Sinta-se à vontade para enviar pull requests e reportar problemas no repositório GitHub.
-
-📝 Licença
+## **🤝 Contribuição**
+Sinta-se à vontade para enviar pull requests e reportar problemas no repositório GitHub
