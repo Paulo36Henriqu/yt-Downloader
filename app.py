@@ -6,10 +6,18 @@ import re
 
 app = Flask(__name__)
 app.secret_key = "mAnICKmacHORkHanarcLOtrEGIbleSioPhySPaNtRAnIeLtyrA"
+
+# Definindo os diretórios para download e conversão
 DOWNLOAD_FOLDER = "downloads"
 CONVERTED_FOLDER = "converted"
-os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
-os.makedirs(CONVERTED_FOLDER, exist_ok=True)
+
+# Função para garantir que as pastas existam
+def create_folders():
+    os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+    os.makedirs(CONVERTED_FOLDER, exist_ok=True)
+
+# Chama a função para criar as pastas ao iniciar a aplicação
+create_folders()
 
 def download_video_or_audio(url, format_type):
     try:
