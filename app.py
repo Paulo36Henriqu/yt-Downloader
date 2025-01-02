@@ -1,36 +1,96 @@
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file
 import yt_dlp
+import os
+from moviepy import AudioFileClip
+import re
 
-def download_video_or_playlist(url, format_type, output_path=None):
+app = Flask(__name__)
+app.secret_key = "mAnICKmacHORkHanarcLOtrEGIbleSioPhySPaNtRAnIeLtyrA"
+DOWNLOAD_FOLDER = "downloads"
+CONVERTED_FOLDER = "converted"
+os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+os.makedirs(CONVERTED_FOLDER, exist_ok=True)
+
+def download_video_or_audio(url, format_type):
     try:
-        print("Downloading...")
-        ydl_opts = {
-            'format': 'bestvideo+bestaudio/best' if format_type == 'mp4' else 'bestaudio/best',
-            'outtmpl': output_path or '%(title)s.%(ext)s',
-            'postprocessors': [{
-                'key': 'FFmpegVideoConvertor',
-                'preferedformat': 'mp4',
-            }] if format_type == 'mp4' else [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-            'postprocessor_args': [
-                '-ar', '16000'
-            ],
-            'prefer_ffmpeg': True,
-        }
-        
+        if format_type == 'mp3':
+            ydl_opts = {
+                'format': 'bestaudio/best',
+                'outtmpl': os.path.join(DOWNLOAD_FOLDER, '%(title)s.%(ext)s'),
+            }
+        elif format_type == 'mp4':
+            ydl_opts = {
+                'format': 'best',
+                'outtmpl': os.path.join(DOWNLOAD_FOLDER, '%(title)s.%(ext)s'),
+            }
+        else:
+            raise ValueError("Formato inválido. Escolha 'mp3' ou 'mp4'.")
+
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
-        print("Download concluído!")
+            info_dict = ydl.extract_info(url, download=True)
+            file_path = ydl.prepare_filename(info_dict)
+            return file_path
     except Exception as e:
-        print("Ocorreu um erro durante o download:", e)
+        return f"Erro durante o download: {e}"
+
+def convert_to_mp3(input_path, output_folder):
+    try:
+        video = AudioFileClip(input_path)
+        output_path = os.path.join(output_folder, os.path.splitext(os.path.basename(input_path))[0] + ".mp3")
+        video.write_audiofile(output_path)
+        return output_path
+    except Exception as e:
+        return f"Erro durante a conversão para MP3: {e}"
+
+def is_youtube_url(url):
+    """Verifica se a URL é de um vídeo ou playlist do YouTube."""
+    youtube_regex = re.compile(
+        r'^(https?://)?(www\.)?(youtube\.com|youtu\.be)/.+$'
+    )
+    return youtube_regex.match(url) is not None
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    if request.method == "POST":
+        url = request.form.get("url")
+        format_type = request.form.get("format")
+
+        if not url or format_type not in ['mp3', 'mp4']:
+            flash("Por favor, insira uma URL válida e escolha um formato válido.")
+            return redirect(url_for("index"))
+
+        if not is_youtube_url(url):
+            flash("A URL fornecida não é válida para o YouTube. Tente novamente.")
+            return redirect(url_for("index"))
+
+        # Download do vídeo ou áudio
+        file_path = download_video_or_audio(url, format_type)
+        if "Erro" in file_path:
+            flash(file_path)
+            return redirect(url_for("index"))
+
+        # Se o formato for MP3 e o arquivo baixado não for MP3, converte
+        if format_type == "mp3" and file_path.endswith('.webm'):
+            converted_path = convert_to_mp3(file_path, CONVERTED_FOLDER)
+        else:
+            converted_path = file_path
+
+        if "Erro" in converted_path:
+            flash(converted_path)
+            return redirect(url_for("index"))
+
+        # Redirecionar para a rota de download
+        return redirect(url_for("download_file", file_path=converted_path))
+
+    return render_template("index.html")
+
+@app.route("/download")
+def download_file():
+    file_path = request.args.get("file_path")
+    if not os.path.exists(file_path):
+        flash("Arquivo não encontrado.")
+        return redirect(url_for("index"))
+    return send_file(file_path, as_attachment=True)
 
 if __name__ == "__main__":
-    url = input("Digite a URL do vídeo ou playlist do YouTube: ")
-    format_type = input("Digite o formato desejado (mp3 ou mp4): ").strip().lower()
-    
-    if format_type not in ['mp3', 'mp4']:
-        print("Formato inválido. Escolha 'mp3' ou 'mp4'.")
-    else:
-        download_video_or_playlist(url, format_type)
+    app.run(debug=True)
