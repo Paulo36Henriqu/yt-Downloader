@@ -19,7 +19,7 @@ def create_folders():
 # Chama a função para criar as pastas ao iniciar a aplicação
 create_folders()
 
-def download_video_or_audio(url, format_type):
+def download_video_or_audio(url, format_type, quality):
     try:
         if format_type == 'mp3':
             ydl_opts = {
@@ -27,8 +27,14 @@ def download_video_or_audio(url, format_type):
                 'outtmpl': os.path.join(DOWNLOAD_FOLDER, '%(title)s.%(ext)s'),
             }
         elif format_type == 'mp4':
+            format_quality = {
+                'low': 'worst',
+                'medium': 'best[height<=720]',
+                'high': 'best'
+            }.get(quality, 'best')
+
             ydl_opts = {
-                'format': 'best',
+                'format': format_quality,
                 'outtmpl': os.path.join(DOWNLOAD_FOLDER, '%(title)s.%(ext)s'),
             }
         else:
@@ -40,6 +46,7 @@ def download_video_or_audio(url, format_type):
             return file_path
     except Exception as e:
         return f"Erro durante o download: {e}"
+
 
 def convert_to_mp3(input_path, output_folder):
     try:
@@ -62,6 +69,7 @@ def index():
     if request.method == "POST":
         url = request.form.get("url")
         format_type = request.form.get("format")
+        quality = request.form.get("quality")  # Nova opção
 
         if not url or format_type not in ['mp3', 'mp4']:
             flash("Por favor, insira uma URL válida e escolha um formato válido.")
@@ -72,7 +80,7 @@ def index():
             return redirect(url_for("index"))
 
         # Download do vídeo ou áudio
-        file_path = download_video_or_audio(url, format_type)
+        file_path = download_video_or_audio(url, format_type, quality)
         if "Erro" in file_path:
             flash(file_path)
             return redirect(url_for("index"))
@@ -91,6 +99,7 @@ def index():
         return redirect(url_for("download_file", file_path=converted_path))
 
     return render_template("index.html")
+
 
 @app.route("/download")
 def download_file():

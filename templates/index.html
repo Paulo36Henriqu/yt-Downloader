@@ -10,19 +10,30 @@
 </head>
 <body>
     <div class="container">
-        <h1>Download de Vídeos ou Audios do YouTube</h1>
+        <h1>Download de Vídeos ou Áudios do YouTube</h1>
         <form id="downloadForm" method="POST" action="/">
             <div class="form-group">
                 <label for="url">URL do YouTube:</label>
                 <input type="url" id="url" name="url" placeholder="Digite a URL" required>
             </div>
+
             <div class="form-group">
                 <label for="format">Formato:</label>
-                <select id="format" name="format" required>
-                    <option value="mp3">Áudio</option>
-                    <option value="mp4">Vídeo</option>
+                <select id="format" name="format" required onchange="toggleQualitySelection()">
+                    <option value="mp3">Áudio (MP3)</option>
+                    <option value="mp4">Vídeo (MP4)</option>
                 </select>
             </div>
+
+            <div class="form-group" id="qualityGroup" style="display: none;">
+                <label for="quality">Qualidade:</label>
+                <select id="quality" name="quality">
+                    <option value="low">Baixa</option>
+                    <option value="medium" selected>Média (720p)</option>
+                    <option value="high">Alta</option>
+                </select>
+            </div>
+
             <button type="submit">Baixar</button>
         </form>
 
@@ -43,6 +54,17 @@
     </div>
 
     <script>
+        function toggleQualitySelection() {
+            const format = document.getElementById('format').value;
+            const qualityGroup = document.getElementById('qualityGroup');
+            
+            if (format === 'mp4') {
+                qualityGroup.style.display = 'block';
+            } else {
+                qualityGroup.style.display = 'none';
+            }
+        }
+
         const form = document.getElementById('downloadForm');
         const progressContainer = document.getElementById('progressContainer');
         const progressBar = document.getElementById('progressBar');
